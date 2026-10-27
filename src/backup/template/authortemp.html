@@ -1,0 +1,25 @@
+<p class="font-serif my-1">
+    <include src="Slides_Author">
+        <div class="py-16">
+            <p class="font-serif my-1">
+                <a href="{{ author.url }}" class="author-link" target="_blank" rel="noopener">
+                    {{ author.name }}
+                </a>
+            </p>
+        </div>
+        <div class="row">
+            {% for department in departments %}
+            <div class="author-affiliation">
+                <a href="{{ department.url }}" class="author-link" target="_blank" rel="noopener">
+                    <p class="font-serif my-1">
+                        {{ department.name }}
+                    </p>
+                    {% if department.img %}
+                    <img class="inline-img h-24" src="{{ department.img }}" style="display: inline-block;">
+                    {% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </include>
+</p>
