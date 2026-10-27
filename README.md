@@ -1,14 +1,10 @@
-# 蒋炎岩风格幻灯片模板
+# Principia 的 Slides
 
 用 Markdown 写内容，一条命令生成和参考图同一套主题的网页幻灯片（reveal.js），可导出 PDF，也可以直接部署到 GitHub Pages。
 
 ![预览](docs/preview.png)
 
-> 参考图里那页“我是谁？”来自南京大学蒋炎岩（jyy）老师的 reveal.js 幻灯片。
 > 这个仓库是一个**可 fork 的定制版**：把名字、单位、颜色换掉，就是你们自己的模板。
-
-> **改 README**：直接在 GitHub 打开 `README.md` 点铅笔编辑，或本地改完 `git commit && git push`。
-> 至少改标题、第一段、预览图、第 5 节的在线地址；“这个模板是哪来的”和 License 建议保留。
 
 ---
 
