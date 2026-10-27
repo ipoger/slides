@@ -7,6 +7,24 @@
 > 参考图里那页“我是谁？”来自南京大学蒋炎岩（jyy）老师的 reveal.js 幻灯片。
 > 这个仓库是一个**可 fork 的定制版**：把名字、单位、颜色换掉，就是你们自己的模板。
 
+> **改 README**：直接在 GitHub 打开 `README.md` 点铅笔编辑，或本地改完 `git commit && git push`。
+> 至少改标题、第一段、预览图、第 5 节的在线地址；“这个模板是哪来的”和 License 建议保留。
+
+---
+
+## 0. 最快路径（做一份自己的）
+
+```bash
+bash scripts/setup.sh                 # 第一次：装依赖
+bash scripts/new-deck.sh our-talk     # 从 demo 复制出 decks/our-talk.md
+# 编辑 decks/our-talk.md 的 front matter 和正文
+bash scripts/build.sh decks/our-talk.md
+bash scripts/serve.sh                 # http://localhost:8000 预览
+bash scripts/deploy.sh decks/our-talk.md
+```
+
+不想新建文件，就直接改 `decks/demo.md`，把 `decks/our-talk.md` 换成 `decks/demo.md` 即可。
+
 ---
 
 ## 1. 这个模板是哪来的
@@ -146,13 +164,14 @@ slideNumber: 'c',           // 只显示当前页；'c/t' 显示 当前/总数
 
 ### 更新已发布的幻灯片
 
-改完 `decks/demo.md` 后：
+改完你要发布的 deck 后：
 
 ```bash
-bash scripts/deploy.sh
+bash scripts/deploy.sh                     # 发布 decks/demo.md
+bash scripts/deploy.sh decks/our-talk.md   # 发布指定文件
 ```
 
-脚本会重新编译，并把 `decks/dist/` 强制推到 `gh-pages` 分支，Pages 随后自动更新。
+脚本会重新编译，并把对应 `dist/` 强制推到 `gh-pages` 分支，Pages 随后自动更新。
 
 ### 想改成 GitHub Actions 自动部署（可选）
 
@@ -239,6 +258,7 @@ slides-template/
 │       └── katex/           # 本地公式渲染
 ├── scripts/
 │   ├── setup.sh
+│   ├── new-deck.sh          # 从 demo 复制一份新 deck
 │   ├── build.sh
 │   ├── serve.sh
 │   └── deploy.sh            # 发布到 gh-pages

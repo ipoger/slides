@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# 把 decks/dist 发布到 gh-pages 分支。
-# 这样不需要 GitHub Actions，也不需要 workflow scope。
+# 用法：bash scripts/deploy.sh [decks/xxx.md]
+# 不传参数时发布 decks/demo.md
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT="$PWD"
 
-bash scripts/build.sh
+DECK="${1:-decks/demo.md}"
+bash scripts/build.sh "$DECK"
+OUT="$(dirname "$DECK")/dist"
 
 REMOTE="$(git remote get-url origin)"
 HELPER="$(git config --get credential.helper || true)"
@@ -19,7 +21,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-cp -R decks/dist/. "$TMP"/
+cp -R "$OUT/." "$TMP"/
 cd "$TMP"
 git init -q -b gh-pages
 if [ -n "$HELPER" ]; then
@@ -31,4 +33,4 @@ git -c user.name="${NAME:-slides}" -c user.email="${EMAIL:-slides@example.com}" 
 git remote add origin "$REMOTE"
 git push -f origin gh-pages
 
-echo "已更新 gh-pages：$REMOTE"
+echo "已更新 gh-pages：$REMOTE（$DECK）"
