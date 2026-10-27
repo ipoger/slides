@@ -1,0 +1,82 @@
+/* ============================================================
+   自定义主题（只改这个文件就能“换皮肤”）
+   ------------------------------------------------------------
+   上游主题：src/static/jyy/jyy.css
+   这里只做覆盖，不动上游文件，方便以后 merge upstream。
+   ============================================================ */
+
+:root {
+    /* 主色：标题下划线、引用、作者链接、控件 */
+    --brand: #6a005f;
+
+    /* 正文与标题颜色 */
+    --text: #222;
+
+    /* 右下角页码 */
+    --page-bg: #efefef;
+    --page-fg: #555;
+
+    /* 右下角翻页箭头 */
+    --controls: #999;
+
+    /* 幻灯片外框 */
+    --slide-border: #ddd;
+
+    /* 字体：想换字体只改这两行。
+       macOS 想更现代可以把 PingFang SC 放到 STHeiti 前面；
+       Windows 建议加 'Microsoft YaHei'。 */
+    --font-sans: 'Lato', 'STHeiti', 'SimHei', 'Sans Serif';
+    --font-serif: 'Source Serif Pro', 'Songti SC', 'SimSun', 'Serif', serif;
+}
+
+.reveal .slides {
+    border-color: var(--slide-border);
+}
+
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4 {
+    font-family: var(--font-sans);
+    color: var(--text);
+}
+
+.reveal p,
+.reveal li,
+.reveal center,
+.reveal table {
+    font-family: var(--font-sans);
+}
+
+/* 标题下的那条线，就是整套模板最醒目的“品牌色” */
+.reveal h2 {
+    border-bottom-color: var(--brand);
+}
+
+/* 居中的引用页（section 分隔页） */
+.reveal .middle blockquote {
+    color: var(--brand);
+}
+
+/* 作者 / 单位链接 */
+.reveal .author-link {
+    color: var(--brand);
+}
+
+/* 右下角页码：默认是深色半透明，这里改成浅灰，接近参考图 */
+.reveal .slide-number {
+    background-color: var(--page-bg);
+    color: var(--page-fg);
+    font-size: 22px;
+    padding: 2px 10px;
+}
+
+/* 右下角翻页箭头：默认是蓝色，这里改成灰色 */
+.reveal .controls {
+    color: var(--controls);
+}
+
+/* 顶部进度条（默认关闭；想开就在 basetemp.html 里把 progress 改成 true） */
+.reveal .progress {
+    color: var(--brand);
+}
