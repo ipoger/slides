@@ -1,4 +1,4 @@
-title: DeepSeek Harness · 架构速览
+title: DeepSeek Harness · 一个小循环的成人礼
 
 author:
   name: 牟安阳
@@ -11,181 +11,253 @@ departments:
 
 # DeepSeek Harness
 
-<p class="center">把 Agent 拆成可组装的零件</p>
+<p class="center">一个小 Agent 循环，怎么活过真实世界？</p>
+
+<p class="center" style="font-size:22px;color:#999">（以及它为什么最后变成了一堆插件）</p>
 
 ---
 
-## 先说结论
+## 150 行，真的能跑
 
-+ 它不是"更大的 Agent"，而是 **Agent 的底座**
-+ 模型、工具、会话、执行环境、策略，全部是插件
-+ 换一层组合包就是另一个产品，加一个插件就是新能力
-
-<hr>
-
-<p class="center" style="font-size:26px; color:#6a005f; margin-top:26px">58 个包 · 68 个模型可见工具 · 5 种 profile · 480+ 篇双语文档</p>
-
----
-
-## 全貌：五层
-
-<img src="./img/stack.svg" width="840px">
-
-<p class="center" style="font-size:22px; color:#888; margin-top:6px">五层各管一件事：产品、扩展、循环、组装、底座</p>
-
----
-
-## 01　一切皆插件
-
-+ 插件是实现 Service 的对象，函数或类都可以
-+ 上下文是服务容器，每个服务占一个稳定的 `ctx.<key>`
-+ `inject` 声明依赖，启动顺序由依赖决定
-+ 事件是类型化的，有五种分发方式
-+ 注册是可逆的副作用，卸载时自动撤销
-
-<hr>
-
-连 agent loop 本身也是插件：`ctx.agentLoop` 可以被整个换掉。
-
----
-
-## 02　没有特权内核
-
-+ **profile**：具名组装，列出自己要叠的组合包
-+ **bundle**：配置项加挂载代码，插入的内容总能被上层 patch
-+ **patch**：按 id 找到条目，替换整段 config，或插入新条目
-
-<hr>
-
-叠加顺序：bundle → profile patch → home patch → `--patch`
-
-```sh
-dsh --profile web --dump-config
+```python
+while True:
+    reply = model(messages)
+    if not reply.tool_calls:
+        break
+    messages += run(reply.tool_calls)
 ```
 
-打印出来的任何一行，都可以被你替换。
++ 模型不只是“说”，它还能改你的工作区
++ jyy 课程 demo：让 Agent 生成一个“相对真实”的南大仙林 3D 图
++ **能跑。别动。**
+
+<p style="color:#888;font-size:26px;margin-top:14px">（先别问权限、沙箱、并发——它连网线都怕。）</p>
 
 ---
 
-## 03　日志是唯一真源
+## 然后，它寄了
 
-+ 会话日志只追加：`turn/*`、`message`、`tool/*`
-+ 模型历史由 `deriveMessages()` 从日志投影
-+ fork、resume、transcript、telemetry 都从同一份日志派生
-+ 想改消息内容，注册纯消息投影，而不是改 UI
+<img class="float-right" src="./img/meme-died.svg" width="300px" style="margin-left:28px">
+
+<div style="max-width:600px" markdown="1">
+
++ 网络断了 → 直接退出
++ 权限不足 → 重试也没用
++ **没收到成功消息 ≠ 没执行**
+
+<br>
+
+于是你开始写重试、幂等、恢复……然后发现，这只是需求清单的第一行。
+
+</div>
+---
+
+## Quiz：这些需求，哪些该进主循环？
+
++ 项目管理、工具与 Skills、沙箱与权限
++ 上下文压缩、记忆与索引、文件编辑
++ 远程访问、App 同步、备份与恢复
 
 <hr>
 
-<p class="center" style="font-size:42px; color:#6a005f; margin-top:18px">模型可见即已记录。</p>
+**一个都不该。**
 
+它们应该长在循环周围，而不是塞进循环里面。（除非你喜欢 if-else 圣诞树 🎄）
 ---
 
-## 04　一次轮次
+## 需求还会突然换方向
 
-+ **步骤**：一次模型请求，加上它引发的工具执行
-+ **轮次**：0 到 n 个步骤，从认领输入开始，到不再欠工作结束
+<img class="float-right" src="./img/meme-requirements.svg" width="300px" style="margin-left:28px">
 
-```text
-turn/start
-  └─ pre-step → request → stream → tool → 下一步
-turn/end
-```
+<div style="max-width:600px" markdown="1">
+
++ 昨天：打开项目，写代码
++ 今天：晨报、新闻、定时、协作
++ 明天：？
+
+<br>
+
+“之前的需求全崩了。” —— 一句夸张但贴切的感叹。
+
+</div>
+---
+
+## 架构：用一部分自由，换一类便利
+
++ **进程**：不能改别人的内存，但四个程序可以同时活着
++ **Java GC**：不用手动 free，但要在暂停和吞吐之间取舍
++ **LAMP**：请求-响应很顺，长连接一来就露馅
 
 <hr>
 
-重试不重复组装；取消不提交系统提示与用户消息。
+便利不是白来的，它绑定了一组假设。假设变了，抽象就漏。
 
 ---
 
-## 05　能力 seam
+# Everything is a plugin
 
-<img src="./img/seam.svg" width="880px">
-
-<p class="center" style="font-size:36px; color:#6a005f; margin-top:10px">seam 是三角整体，不是其中一个角色。</p>
+<p class="center">然后，真正难的事情才开始。</p>
 
 ---
 
-## 06　事件就是扩展点
+## 插件化，到底换来了什么
 
-| 事件域 | 回答什么 | 例子 |
++ **换实现**：`ctx.fs` 指向远端沙箱，bash / PTY / LSP 一起搬走
++ **换能力**：给一个 agent 挂工具，不用复制一套产品
++ **换产品**：换一层组合包，web → headless → sdk → acp
+
+<hr>
+
+同一套核心，三种自由。
+
+<p style="font-size:26px;color:#888;margin-top:12px">换实现，就像换插座：墙上的孔不变，后面接哪路电可以换。</p>
+
+---
+
+## 但拆成插件 ≠ 自动解耦
+
+<img class="float-right" src="./img/meme-puzzle.svg" width="300px" style="margin-left:28px">
+
+<div style="max-width:600px" markdown="1">
+
++ 不协同：四座孤岛
++ 乱协同：一锅粥
++ 拆成 58 个包 ≠ 有架构
+
+<br>
+
+**真正难的不是“插件化”，是“协同”。**
+
+</div>
+---
+
+## DSH 的世界模型
+
+<img src="./img/world-model.svg" width="820px">
+
+<p class="center" style="font-size:22px;color:#888;margin-top:6px">插件不必知道彼此的全部内部结构，也能参与同一段工作。</p>
+
+---
+
+## Session = list[Event]
+
+<img src="./img/projection.svg" width="840px">
+
+<p class="center" style="font-size:32px;color:#6a005f;margin-top:10px">余额是算出来的，不是改出来的。</p>
+
+---
+
+## 给模型一段话，其实有三种说法
+
++ `followup`：新任务，排进下一轮，唤醒
++ `inject`：补充资料，等下一步用，不唤醒
++ `steer`：中途变道，“先处理第二份文件”
+
+<hr>
+
+类比：发新工单 / 往桌上放资料 / 跑到工位旁边喊一声。
+
+---
+
+## 过去和未来，不要混在一起
+
++ `session/event`：已经发生的事实，只能追加
++ `agent/pre-step`：还没发生的步骤，可以参与决策
++ 改写历史 → 留下新记录；改变未来 → 参与决策
++ 不调用 `next()`，就是短路
+
+<hr>
+
+类比：监控录像 vs 导演喊“卡”。
+
+---
+
+## 插件挂上总线，冲突也一起进来
+
+<img class="float-right" src="./img/meme-skull.svg" width="300px" style="margin-left:28px">
+
+<div style="max-width:600px" markdown="1">
+
++ A 改写，B 检查：顺序不同，看到的就不同
++ 一个说继续，一个说停
++ 十个压缩插件：$(1/2)^{10}=1/1024$
+
+<br>
+
+每个插件都觉得自己在省上下文，合起来把信息压没了。
+
+</div>
+---
+
+## 所以，“彻底解耦”是一句假话
+
+<img class="float-right" src="./img/meme-traffic.svg" width="300px" style="margin-left:28px">
+
+<div style="max-width:600px" markdown="1">
+
++ 谁负责哪类事件
++ 哪些行为能共存
++ 冲突时谁说了算
++ 卸载后清理什么
+
+<br>
+
+接口可以小，规则不能少。
+
+</div>
+---
+
+## 生态：让用户在现场试错
+
++ 用户许愿 → Agent 写插件 → 用户现场体验
++ 共同接口足够小，小需求不必等排期
+
+<hr>
+
+> “我觉得 dsh 的开源社区走远了。” —— jyy
+
+<hr>
+
+是在收集插件，还是在让每个人满足自己的小需求？
+
+---
+
+## 三个老问题，换了身衣服
+
+| 领域 | 老办法 | 在 DSH 里 |
 | --- | --- | --- |
-| `session/event` | 留下什么事实 | `turn/start`、`tool/result` |
-| `agent/*` | 能不能拦截 | `pre-step`、`request` |
-| `fs/*`、`tools/*` | 挂什么策略 | `pre/post-execute` |
+| 会计 | 流水账 | Session / 投影 |
+| 快递 | 一个单号 | 幂等重试 |
+| 电影 | 录像与喊卡 | 事实 vs 决策 |
+| 交通 | 红绿灯 | 协同规则 |
 
 <hr>
 
-waterfall 是环绕中间件：不调用 `next()` 就是短路。
+DSH 没有发明新问题，只是把老问题放进了 Agent 里。
 
 ---
 
-## 07　工具流水线
+## 如果只记三句话
 
-+ 三个阶段：`pre-execute` → `execute` → `post-execute`
-+ 审批结果只有四种，拿不到明确许可就拒绝
-    + `allowed-once` / `rejected` / `cancelled` / `unavailable`
-+ 沙箱只负责文件效果，不负责网络与进程可见性
+<img class="float-right" src="./img/meme-ship.svg" width="300px" style="margin-left:28px">
 
-```text
-read-only · workspace-write · danger-full-access
-```
+<div style="max-width:600px" markdown="1">
 
-每次调用解析一份策略，带着 workspaceRoot 一起走。
++ 核心很小，世界很大
++ 插件管加法，规则管打架
++ 架构是交换，不是白送
 
----
+<br>
 
-## 08　一个 Agent 一套能力
+<p class="center" style="font-size:38px;color:#6a005f;margin-top:10px">能跑，只是开始。</p>
 
-+ 只有两层：全局，或归属于某个 agent 的 scope
-+ 扁平，不向下继承；父子关系是 lineage 数据
-+ shadowing：同名时最具体者胜
-+ restriction：为单个 scope 过滤全局工具，多个取交集
-
-<hr>
-
-给一个 agent 定制人格和工具，不需要复制一套产品。
-
----
-
-## 09　产品是组合出来的
-
-+ 并行探索：`ctx.subagents` → `subagent` / `subagent_fork`
-+ 长期目标：`ctx.goals` → `create_goal`，Goal Round 自动续跑
-+ 后台任务：`ctx.jobs` → `job_list` / `job_output` / `job_kill`
-+ 多步编排：`ctx.workflowEngine` → `workflow` / `ralph`
-+ 领域知识：`ctx.skills` → `skill`
-
-<hr>
-
-没有一张"Agent 功能列表"的文件，只有一层层组合。
-
----
-
-## 10　文档也是门禁
-
-+ 480+ 篇文档，中英双语逐篇配对校验
-+ tool catalog 由真实启动的插件生成，完整性守卫覆盖所有 tool 包
-+ 子系统页的 mermaid 图由脚本生成，不靠手画
-+ snapshot 与 e2e 测试锁住事件和配置的形状
-
-<p class="center" style="font-size:38px; color:#6a005f; margin-top:30px">文档不是描述，是构建的一部分。</p>
-
----
-
-## 三句话
-
-+ **机制与产品分离**：profile + bundle + patch
-+ **事实与视图分离**：会话日志是唯一真源
-+ **能力与实现分离**：seam + 事件 + scope
-
-<hr>
-
-DSH 的价值不在"它有什么功能"，而在"加功能不需要改它"。
-
+</div>
 ---
 
 # 谢谢
 
+<p class="center">去写一个自己的插件吧。</p>
+
 <p class="center">https://github.com/deepseek-ai/deepseek-harness</p>
 
-<p class="center">https://deepseek-harness.github.io/deepseek-harness/</p>
+<p class="center" style="font-size:18px;color:#aaa;margin-top:18px">表情素材：Twemoji (CC BY 4.0) · 风格参考 jyywiki.cn</p>

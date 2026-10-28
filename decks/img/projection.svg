@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="380" viewBox="0 0 900 380">
+  <style>
+    text { font-family: "PingFang SC", "Hiragino Sans GB", "STHeiti", sans-serif; }
+    .box { fill: #fafafa; stroke: #dcdcdc; stroke-width: 1.5; }
+    .role { font-size: 22px; font-weight: 600; fill: #6a005f; }
+    .sub { font-size: 15px; fill: #777; }
+    .api { font-size: 13px; fill: #aaa; }
+    .bar { fill: #f5f5f5; stroke: #dcdcdc; stroke-width: 1.5; }
+    .chip { font-size: 14px; fill: #555; }
+    .arrow { stroke: #6a005f; stroke-width: 2; fill: none; }
+  </style>
+
+  <g>
+    <rect class="box" x="30" y="24" width="240" height="96" rx="8"/>
+    <text class="role" x="52" y="58">模型历史</text>
+    <text class="sub" x="52" y="84">下一次请求看到的消息</text>
+    <text class="api" x="52" y="106">deriveMessages()</text>
+  </g>
+
+  <g>
+    <rect class="box" x="330" y="24" width="240" height="96" rx="8"/>
+    <text class="role" x="352" y="58">界面</text>
+    <text class="sub" x="352" y="84">工具卡片、任务状态、时间线</text>
+    <text class="api" x="352" y="106">snapshot()</text>
+  </g>
+
+  <g>
+    <rect class="box" x="630" y="24" width="240" height="96" rx="8"/>
+    <text class="role" x="652" y="58">业务状态</text>
+    <text class="sub" x="652" y="84">这个 Session 现在到哪一步</text>
+    <text class="api" x="652" y="106">stateOf()</text>
+  </g>
+
+  <line class="arrow" x1="150" y1="124" x2="150" y2="262"/>
+  <polygon points="150,270 143,258 157,258" fill="#6a005f"/>
+  <line class="arrow" x1="450" y1="124" x2="450" y2="262"/>
+  <polygon points="450,270 443,258 457,258" fill="#6a005f"/>
+  <line class="arrow" x1="750" y1="124" x2="750" y2="262"/>
+  <polygon points="750,270 743,258 757,258" fill="#6a005f"/>
+
+  <rect class="bar" x="30" y="270" width="840" height="94" rx="8"/>
+  <text class="sub" x="50" y="298" style="fill:#6a005f; font-weight:600">Session = list[Event]</text>
+  <text class="chip" x="50" y="330">turn/start · user/message · assistant/message · tool/call · tool/result · turn/end</text>
+</svg>

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="230" viewBox="0 0 900 230">
+  <style>
+    text { font-family: "PingFang SC", "Hiragino Sans GB", "STHeiti", sans-serif; }
+    .box { fill: #fafafa; stroke: #dcdcdc; stroke-width: 1.5; }
+    .role { font-size: 24px; font-weight: 600; fill: #6a005f; }
+    .sub { font-size: 15px; fill: #666; }
+    .api { font-size: 13px; fill: #999; }
+    .arrow { stroke: #6a005f; stroke-width: 2; fill: none; }
+    .label { font-size: 13px; fill: #999; }
+  </style>
+
+  <g>
+    <rect class="box" x="30" y="90" width="220" height="110" rx="8"/>
+    <text class="role" x="52" y="128">Slot</text>
+    <text class="sub" x="52" y="156">界面上的插槽</text>
+    <text class="api" x="52" y="180">按钮 / 面板 / 卡片</text>
+  </g>
+
+  <g>
+    <rect class="box" x="340" y="90" width="220" height="110" rx="8"/>
+    <text class="role" x="362" y="128">Agent</text>
+    <text class="sub" x="362" y="156">接收输入，推动执行</text>
+    <text class="api" x="362" y="180">followup / inject / steer</text>
+  </g>
+
+  <g>
+    <rect class="box" x="650" y="90" width="220" height="110" rx="8"/>
+    <text class="role" x="672" y="128">Session</text>
+    <text class="sub" x="672" y="156">记录发生过什么</text>
+    <text class="api" x="672" y="180">list[Event]</text>
+  </g>
+
+  <line class="arrow" x1="254" y1="122" x2="334" y2="122"/>
+  <polygon points="340,122 330,116 330,128" fill="#6a005f"/>
+  <text class="label" x="294" y="112" text-anchor="middle">用户操作</text>
+
+  <line class="arrow" x1="336" y1="164" x2="256" y2="164"/>
+  <polygon points="250,164 260,158 260,170" fill="#6a005f"/>
+  <text class="label" x="294" y="186" text-anchor="middle">渲染</text>
+
+  <line class="arrow" x1="564" y1="122" x2="644" y2="122"/>
+  <polygon points="650,122 640,116 640,128" fill="#6a005f"/>
+  <text class="label" x="604" y="112" text-anchor="middle">append</text>
+
+  <line class="arrow" x1="646" y1="164" x2="566" y2="164"/>
+  <polygon points="560,164 570,158 570,170" fill="#6a005f"/>
+  <text class="label" x="604" y="186" text-anchor="middle">derive</text>
+</svg>
